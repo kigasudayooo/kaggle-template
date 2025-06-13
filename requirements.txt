@@ -1,0 +1,15 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+plotly
+jupyter
+wandb
+lightgbm
+xgboost
+catboost
+optuna
+hydra-core
+python-dotenv
+tqdm

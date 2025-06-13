@@ -1,0 +1,35 @@
+# Wandb configuration
+wandb:
+  project: "kaggle-competition"
+  entity: null  # Set your wandb username/team
+  tags: []
+  notes: ""
+
+# Data paths
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  external_dir: "data/external"
+
+# Model configuration
+model:
+  name: "lightgbm"
+  params:
+    objective: "regression"
+    metric: "rmse"
+    boosting_type: "gbdt"
+    num_leaves: 31
+    learning_rate: 0.05
+    feature_fraction: 0.9
+
+# Training configuration
+training:
+  n_splits: 5
+  random_state: 42
+  test_size: 0.2
+
+# Experiment tracking
+experiment:
+  name: "baseline"
+  description: "Baseline experiment"
+  save_model: true
