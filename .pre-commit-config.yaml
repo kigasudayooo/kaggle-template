@@ -1,0 +1,29 @@
+# Kaggle向け軽量pre-commit設定
+# 実験速度を重視しつつ、最低限の品質とセキュリティを担保
+
+repos:
+  # 基本的なファイルチェック
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      # 大きなファイルのコミット防止（データ/モデルの誤コミット防止）
+      - id: check-added-large-files
+        args: ['--maxkb=5000']
+
+      # 秘密鍵の検出（Kaggle APIキー等の漏洩防止）
+      - id: detect-private-key
+
+      # YAMLの構文チェック
+      - id: check-yaml
+        args: ['--unsafe']  # カスタムタグを許可
+
+      # マージコンフリクトマーカーの検出
+      - id: check-merge-conflict
+
+  # Ruff (Linter + Formatter) - 自動修正されるので邪魔にならない
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.3
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format

@@ -1,0 +1,116 @@
+# Kaggle Competition Task Runner
+# Usage: task <task-name>
+# List tasks: task --list
+
+version: '3'
+
+vars:
+  PYTHON: uv run python
+  SRC_DIR: src
+  TEST_DIR: tests
+
+tasks:
+  # デフォルト: タスク一覧表示
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  # ===================
+  # セットアップ
+  # ===================
+
+  setup:
+    desc: Setup development environment
+    cmds:
+      - uv sync --all-extras --dev
+      - uv run pre-commit install
+      - echo "Setup complete!"
+
+  # ===================
+  # コード品質チェック
+  # ===================
+
+  lint:
+    desc: Run Ruff linter
+    cmds:
+      - uv run ruff check {{.SRC_DIR}}
+      - uv run ruff format --check {{.SRC_DIR}}
+
+  lint:fix:
+    desc: Fix linting issues automatically
+    cmds:
+      - uv run ruff check --fix {{.SRC_DIR}}
+      - uv run ruff format {{.SRC_DIR}}
+
+  typecheck:
+    desc: Run type checker (ty)
+    cmds:
+      - uvx ty check
+
+  # ===================
+  # テスト
+  # ===================
+
+  test:
+    desc: Run tests
+    cmds:
+      - uv run pytest {{.TEST_DIR}} -v
+
+  test:cov:
+    desc: Run tests with coverage
+    cmds:
+      - uv run pytest {{.TEST_DIR}} --cov={{.SRC_DIR}} --cov-report=html
+
+  # ===================
+  # 全チェック（提出前に実行）
+  # ===================
+
+  check:
+    desc: Run all checks (lint, typecheck, test)
+    cmds:
+      - task: lint
+      - task: typecheck
+      - task: test
+
+  check:quick:
+    desc: Quick check (lint only, for daily use)
+    cmds:
+      - task: lint
+
+  # ===================
+  # 開発ツール
+  # ===================
+
+  jupyter:
+    desc: Start Jupyter Lab
+    cmds:
+      - uv run jupyter lab
+
+  # ===================
+  # 訓練・推論
+  # ===================
+
+  train:
+    desc: Run training script (use -- to pass args)
+    cmds:
+      - "{{.PYTHON}} {{.SRC_DIR}}/scripts/train.py {{.CLI_ARGS}}"
+
+  # ===================
+  # クリーンアップ
+  # ===================
+
+  clean:
+    desc: Clean generated files
+    cmds:
+      - rm -rf __pycache__ .pytest_cache .ruff_cache .mypy_cache
+      - find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+      - find . -type f -name "*.pyc" -delete 2>/dev/null || true
+      - echo "Cleaned!"
+
+  clean:all:
+    desc: Clean all generated files including models and experiments
+    cmds:
+      - task: clean
+      - rm -rf models/* experiments/*
+      - echo "All cleaned! (models and experiments removed)"
